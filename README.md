@@ -55,8 +55,9 @@ shutdown         - Halt system
 ### Developer Tools
 ```
 casm <file.asm>           - Assemble C.ASM source
-casm -r <file.asm>        - Compile and run directly
-casm run <file.bin>       - Run compiled binary
+casm -r <file.asm>        - Compile and run directly (native - fast!)
+casm run <file.bin>       - Run compiled binary (native - fast!)
+casm run -v <file.bin>    - Run in VM mode (slower, for debugging)
 casm run -d <file.bin>    - Debug mode (step through)
 casm disasm <file.bin>    - Disassemble binary
 hexdump <addr> [len]      - Dump memory
@@ -76,7 +77,7 @@ C.ASM is a simplified ARM64 assembly dialect with built-in I/O, graphics, and sy
 | Graphics | Framebuffer drivers | Built-in: `plot`, `line`, `box` |
 | Files | Kernel syscalls | Direct: `fwrite`, `fread`, `fcopy` |
 | Strings | Manual loops | `strlen`, `memcpy`, `memset` |
-| Execution | Native CPU | Interpreted VM (safe sandbox) |
+| Execution | Native CPU | Native with SVC traps for extended ops |
 
 ## Basic Syntax
 
@@ -91,8 +92,9 @@ _start:
 
 ## Registers
 
-- `x0-x30` - 64-bit general purpose registers
-- `w0-w30` - 32-bit (lower half of x registers)
+- `x0-x23` - General purpose registers
+- `w0-w23` - 32-bit (lower half of x registers)
+- `x24-x28` - **RESERVED** (native execution uses these)
 - `sp` - Stack pointer (x31)
 - `lr` - Link register (x30)
 
@@ -281,16 +283,23 @@ _start:
 
 ## Running C.ASM Programs
 
-### Method 1: Compile and Run Separately
+### Method 1: Compile and Run Separately (Native Execution)
 ```
 ember:/> casm hello.asm -o hello.bin
 ember:/> casm run hello.bin
 ```
+Native execution runs ARM64 code directly on the CPU - much faster than VM interpretation!
 
-### Method 2: Compile and Run Directly
+### Method 2: Compile and Run Directly (Native)
 ```
 ember:/> casm -r hello.asm
 ```
+
+### VM Mode (Fallback)
+```
+ember:/> casm run -v hello.bin
+```
+Use VM mode if native execution has issues or for debugging. Slower but safer.
 
 ### Debug Mode (Step Through)
 ```
@@ -301,6 +310,17 @@ ember:/> casm run -d hello.bin
 ```
 ember:/> casm disasm hello.bin
 ```
+
+### Reserved Registers
+
+Native execution reserves x24-x28 for internal use:
+- `x28` - Data base address
+- `x27` - Framebuffer pointer
+- `x26` - Row stride
+- `x25` - Color buffer pointer
+- `x24` - Current color
+
+**Do not use x24-x28 in your programs!**
 
 ---
 
@@ -336,6 +356,8 @@ C.ASM programs have 5KB of memory:
 3. Always null-terminate strings for `prt` and `strlen`
 4. Graphics auto-initialize on first use (40x12 default)
 5. Check `examples/` for working code patterns
+6. **Do not use registers x24-x28** (reserved for native execution)
+7. Native execution is default and fast; use `-v` for VM mode if needed
 
 ## ASCII Reference
 
