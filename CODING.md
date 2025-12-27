@@ -33,8 +33,11 @@ C.ASM (C-Assembly) is a simplified ARM64 assembly dialect designed for EmberOS. 
 ### What C.ASM is NOT
 
 - Not a high-level language (no variables, functions, or types)
-- Not native execution (interpreted, so slower than native)
 - Not full ARM64 (subset of instructions supported)
+
+### Native Execution (Default)
+
+As of the latest version, C.ASM programs run natively on the ARM64 CPU by default! Extended opcodes (I/O, graphics, files) trap via SVC and are handled by the kernel. This provides near-native performance while maintaining safety.
 
 
 ---
@@ -85,11 +88,14 @@ The VM interprets ARM64 instructions with these components:
 # Compile to binary
 casm source.asm -o output.bin
 
-# Compile and run immediately
+# Compile and run immediately (native execution)
 casm -r source.asm
 
-# Run existing binary
+# Run existing binary (native execution - fast!)
 casm run program.bin
+
+# Run in VM mode (slower, for debugging/compatibility)
+casm run -v program.bin
 
 # Debug mode (step through)
 casm run -d program.bin
@@ -97,6 +103,19 @@ casm run -d program.bin
 # Disassemble binary
 casm disasm program.bin
 ```
+
+### Execution Modes
+
+- **Native mode (default)**: Runs ARM64 code directly on CPU. Extended opcodes trap via SVC. Very fast!
+- **VM mode (-v)**: Interprets each instruction. Slower but useful for debugging or if native has issues.
+- **Debug mode (-d)**: Step through instructions one at a time.
+
+**Important**: Native execution reserves registers x24-x28. Do not use these in your programs:
+- `x28` - Data base address (for x28-relative addressing)
+- `x27` - Framebuffer base pointer
+- `x26` - Framebuffer row stride
+- `x25` - Color buffer base pointer
+- `x24` - Current color value
 
 ### Compiler Output
 
@@ -236,8 +255,16 @@ mov x1, #0x500   ; Memory address - use x
 | `x0` | Primary argument/return value |
 | `x1-x7` | Additional arguments |
 | `x8-x15` | Temporary (caller-saved) |
-| `x16-x29` | Saved (callee-saved) |
+| `x16-x23` | Saved (callee-saved) |
+| `x24-x28` | **RESERVED** - Do not use (native execution) |
 | `x30/lr` | Return address |
+
+**Reserved Registers (Native Execution)**:
+- `x28` - Data base address (code_buffer + 0x400)
+- `x27` - Framebuffer base pointer
+- `x26` - Framebuffer row stride (81)
+- `x25` - Color buffer base pointer
+- `x24` - Current color value
 
 For C.ASM extended opcodes:
 - `x0` - Primary input/output
@@ -842,6 +869,40 @@ Disassembly of 'program.bin' (24 bytes):
     prtc
     mov x0, x8           ; restore x0
 ```
+
+---
+
+## Performance Optimizations
+
+Native execution includes several optimizations for better performance:
+
+### Batched UART Output
+Character output is buffered (256 bytes) and flushed on:
+- Newline character
+- Before input operations (`inp`, `inps`)
+- Before `sleep`
+- On program exit (`halt`)
+
+This reduces MMIO overhead significantly for programs that print many characters.
+
+### Optimized Memory Operations
+`memcpy` and `memset` use 64-bit word operations when addresses are 8-byte aligned, providing up to 8x speedup for large operations.
+
+### Direct Framebuffer Access
+The `plot` opcode writes directly to the framebuffer without SVC overhead. The kernel sets up:
+- `x27` = framebuffer base
+- `x26` = row stride (81)
+- `x25` = color buffer base
+- `x24` = current color
+
+### Peephole Optimization
+The codegen eliminates no-op instructions:
+- `mov xN, xN` → eliminated
+- `add xN, xN, #0` → eliminated
+- `sub xN, xN, #0` → eliminated
+
+### Fast RNG
+The `rnd` opcode uses xorshift64 algorithm for better quality and speed.
 
 ---
 
