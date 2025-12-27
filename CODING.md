@@ -40,30 +40,30 @@ C.ASM (C-Assembly) is a simplified ARM64 assembly dialect designed for EmberOS. 
 │                        C.ASM Execution Model                         │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                      │
-│   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐         │
-│   │ Source File │ ──▶  │    CASM     │ ──▶  │   Binary    │         │
-│   │  (.asm)     │      │  Assembler  │      │   (.bin)    │         │
-│   └─────────────┘      └─────────────┘      └─────────────┘         │
+│   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐          │
+│   │ Source File │ ──▶  │    CASM     │ ──▶  │   Binary    │          │
+│   │  (.asm)     │      │  Assembler  │      │   (.bin)    │          │
+│   └─────────────┘      └─────────────┘      └─────────────┘          │
 │                                                    │                 │
 │                              ┌─────────────────────┘                 │
 │                              ▼                                       │
-│   ┌──────────────────────────────────────────────────────────────┐  │
-│   │                    Native Execution                          │  │
-│   │  ┌────────────────────────────────────────────────────────┐  │  │
-│   │  │  ARM64 Instructions (mov, add, cmp, b, ldr, str...)   │  │  │
-│   │  │  Execute directly on CPU at full speed                 │  │  │
-│   │  └────────────────────────────────────────────────────────┘  │  │
-│   │                           │                                  │  │
-│   │                    SVC Trap (Extended Opcodes)               │  │
-│   │                           ▼                                  │  │
-│   │  ┌────────────────────────────────────────────────────────┐  │  │
-│   │  │  Kernel SVC Handler                                    │  │  │
-│   │  │  • I/O: prt, prtc, prtn, inp, inps                    │  │  │
-│   │  │  • Graphics: plot, line, box, canvas, setc            │  │  │
-│   │  │  • Files: fread, fwrite, fcreat, fdel                 │  │  │
-│   │  │  • System: sleep, rnd, tick, halt                     │  │  │
-│   │  └────────────────────────────────────────────────────────┘  │  │
-│   └──────────────────────────────────────────────────────────────┘  │
+│   ┌──────────────────────────────────────────────────────────────┐   │
+│   │                    Native Execution                          │   │
+│   │  ┌────────────────────────────────────────────────────────┐  │   │
+│   │  │  ARM64 Instructions (mov, add, cmp, b, ldr, str...)    │  │   │
+│   │  │  Execute directly on CPU at full speed                 │  │   │
+│   │  └────────────────────────────────────────────────────────┘  │   │
+│   │                           │                                  │   │
+│   │                    SVC Trap (Extended Opcodes)               │   │
+│   │                           ▼                                  │   │
+│   │  ┌────────────────────────────────────────────────────────┐  │   │
+│   │  │  Kernel SVC Handler                                    │  │   │
+│   │  │  • I/O: prt, prtc, prtn, inp, inps                     │  │   │
+│   │  │  • Graphics: plot, line, box, canvas, setc             │  │   │
+│   │  │  • Files: fread, fwrite, fcreat, fdel                  │  │   │
+│   │  │  • System: sleep, rnd, tick, halt                      │  │   │
+│   │  └────────────────────────────────────────────────────────┘  │   │
+│   └──────────────────────────────────────────────────────────────┘   │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -89,29 +89,29 @@ C.ASM (C-Assembly) is a simplified ARM64 assembly dialect designed for EmberOS. 
 │  Source Code                                                        │
 │       │                                                             │
 │       ▼                                                             │
-│  ┌─────────┐    Tokens    ┌─────────┐     AST     ┌─────────────┐  │
-│  │  Lexer  │ ──────────▶  │ Parser  │ ──────────▶ │  Code Gen   │  │
-│  └─────────┘              └─────────┘             └─────────────┘  │
-│                                                          │         │
-│                                                          ▼         │
-│                                              ┌───────────────────┐ │
-│                                              │  Pass 1: Labels   │ │
-│                                              │  Collect symbols, │ │
-│                                              │  calculate addrs  │ │
-│                                              └─────────┬─────────┘ │
-│                                                        │           │
-│                                                        ▼           │
-│                                              ┌───────────────────┐ │
-│                                              │  Pass 2: Encode   │ │
-│                                              │  Generate ARM64   │ │
-│                                              │  machine code     │ │
-│                                              └─────────┬─────────┘ │
-│                                                        │           │
-│                                                        ▼           │
-│                                              ┌───────────────────┐ │
-│                                              │  Binary Output    │ │
-│                                              │  (.bin file)      │ │
-│                                              └───────────────────┘ │
+│  ┌─────────┐    Tokens    ┌─────────┐     AST     ┌─────────────┐   │
+│  │  Lexer  │ ──────────▶  │ Parser  │ ──────────▶ │  Code Gen   │   │
+│  └─────────┘              └─────────┘             └─────────────┘   │
+│                                                          │          │
+│                                                          ▼          │
+│                                              ┌───────────────────┐  │
+│                                              │  Pass 1: Labels   │  │
+│                                              │  Collect symbols, │  │
+│                                              │  calculate addrs  │  │
+│                                              └─────────┬─────────┘  │
+│                                                        │            │
+│                                                        ▼            │
+│                                              ┌───────────────────┐  │
+│                                              │  Pass 2: Encode   │  │
+│                                              │  Generate ARM64   │  │
+│                                              │  machine code     │  │
+│                                              └─────────┬─────────┘  │
+│                                                        │            │
+│                                                        ▼            │
+│                                              ┌───────────────────┐  │
+│                                              │  Binary Output    │  │
+│                                              │  (.bin file)      │  │
+│                                              └───────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -123,26 +123,26 @@ C.ASM (C-Assembly) is a simplified ARM64 assembly dialect designed for EmberOS. 
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  code_buffer (5KB total)                                            │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │ 0x0000 ┌──────────────────────────────────────────────────┐ │   │
-│  │        │              Program Code                        │ │   │
-│  │        │         (ARM64 machine code)                     │ │   │
-│  │        │                                                  │ │   │
-│  │ 0x0400 ├──────────────────────────────────────────────────┤ │   │
-│  │        │              Data Area                           │ │   │
-│  │        │    (strings, buffers, variables)                 │ │   │
-│  │        │                                                  │ │   │
-│  │ 0x1400 └──────────────────────────────────────────────────┘ │   │
-│  └─────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │ 0x0000 ┌──────────────────────────────────────────────────┐ │    │
+│  │        │              Program Code                        │ │    │
+│  │        │         (ARM64 machine code)                     │ │    │
+│  │        │                                                  │ │    │
+│  │ 0x0400 ├──────────────────────────────────────────────────┤ │    │
+│  │        │              Data Area                           │ │    │
+│  │        │    (strings, buffers, variables)                 │ │    │
+│  │        │                                                  │ │    │
+│  │ 0x1400 └──────────────────────────────────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────────────┘    │
 │                                                                     │
 │  Reserved Registers (set by kernel before execution):               │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │  x28 = code_buffer base (for data address translation)      │   │
-│  │  x27 = framebuffer base pointer                             │   │
-│  │  x26 = framebuffer row stride (81)                          │   │
-│  │  x25 = color buffer base pointer                            │   │
-│  │  x24 = current color value (set by setc/canvas/reset)       │   │
-│  └─────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │  x28 = code_buffer base (for data address translation)      │    │
+│  │  x27 = framebuffer base pointer                             │    │
+│  │  x26 = framebuffer row stride (81)                          │    │
+│  │  x25 = color buffer base pointer                            │    │
+│  │  x24 = current color value (set by setc/canvas/reset)       │    │
+│  └─────────────────────────────────────────────────────────────┘    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -561,27 +561,27 @@ mov x1, #0x500   ; Memory address - use x
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  General Purpose (safe to use):                                     │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │  x0-x7   │ Arguments and return values for extended ops     │   │
-│  │  x8-x15  │ Temporary registers (use freely)                 │   │
-│  │  x16-x23 │ More temporaries (use freely)                    │   │
-│  └─────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │  x0-x7   │ Arguments and return values for extended ops     │    │
+│  │  x8-x15  │ Temporary registers (use freely)                 │    │
+│  │  x16-x23 │ More temporaries (use freely)                    │    │
+│  └─────────────────────────────────────────────────────────────┘    │
 │                                                                     │
 │  RESERVED - DO NOT USE:                                             │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │  x24     │ Current color (set by setc/canvas/reset)         │   │
-│  │  x25     │ Color buffer base pointer                        │   │
-│  │  x26     │ Framebuffer row stride (81)                      │   │
-│  │  x27     │ Framebuffer base pointer                         │   │
-│  │  x28     │ Data base address (code_buffer)                  │   │
-│  └─────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │  x24     │ Current color (set by setc/canvas/reset)         │    │
+│  │  x25     │ Color buffer base pointer                        │    │
+│  │  x26     │ Framebuffer row stride (81)                      │    │
+│  │  x27     │ Framebuffer base pointer                         │    │
+│  │  x28     │ Data base address (code_buffer)                  │    │
+│  └─────────────────────────────────────────────────────────────┘    │
 │                                                                     │
 │  Special:                                                           │
-│  ┌─────────────────────────────────────────────────────────────┐   │
-│  │  x30/lr  │ Link register (return address for bl/ret)        │   │
-│  │  x31/sp  │ Stack pointer / Zero register (context-dependent)│   │
-│  │  xzr/wzr │ Zero register (always reads as 0)                │   │
-│  └─────────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │  x30/lr  │ Link register (return address for bl/ret)        │    │
+│  │  x31/sp  │ Stack pointer / Zero register (context-dependent)│    │
+│  │  xzr/wzr │ Zero register (always reads as 0)                │    │
+│  └─────────────────────────────────────────────────────────────┘    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -728,31 +728,31 @@ Extended opcodes are C.ASM-specific instructions that provide high-level functio
 │                    Extended Opcode Categories                       │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  I/O (0x100-0x10F)          Graphics (0x110-0x11F)                 │
-│  ┌─────────────────┐        ┌─────────────────┐                    │
-│  │ prt   - string  │        │ canvas - size   │                    │
-│  │ prtc  - char    │        │ cls    - clear  │                    │
-│  │ prtn  - number  │        │ setc   - colors │                    │
-│  │ prtx  - hex     │        │ plot   - pixel  │                    │
-│  │ inp   - char in │        │ line   - line   │                    │
-│  │ inps  - string  │        │ box    - rect   │                    │
-│  └─────────────────┘        │ reset  - reset  │                    │
-│                             └─────────────────┘                    │
-│  Files (0x120-0x12F)        System (0x1F0-0x1FF)                   │
-│  ┌─────────────────┐        ┌─────────────────┐                    │
-│  │ fcreat - create │        │ sleep  - delay  │                    │
-│  │ fwrite - write  │        │ rnd    - random │                    │
-│  │ fread  - read   │        │ tick   - time   │                    │
-│  │ fdel   - delete │        │ halt   - stop   │                    │
-│  │ fcopy  - copy   │        └─────────────────┘                    │
-│  │ fmove  - rename │                                               │
-│  │ fexist - exists │        Memory (0x130-0x13F)                   │
-│  └─────────────────┘        ┌─────────────────┐                    │
-│                             │ strlen - length │                    │
-│                             │ memcpy - copy   │                    │
-│                             │ memset - fill   │                    │
-│                             │ abs    - abs    │                    │
-│                             └─────────────────┘                    │
+│  I/O (0x100-0x10F)          Graphics (0x110-0x11F)                  │
+│  ┌─────────────────┐        ┌─────────────────┐                     │
+│  │ prt   - string  │        │ canvas - size   │                     │
+│  │ prtc  - char    │        │ cls    - clear  │                     │
+│  │ prtn  - number  │        │ setc   - colors │                     │
+│  │ prtx  - hex     │        │ plot   - pixel  │                     │ 
+│  │ inp   - char in │        │ line   - line   │                     │
+│  │ inps  - string  │        │ box    - rect   │                     │
+│  └─────────────────┘        │ reset  - reset  │                     │
+│                             └─────────────────┘                     │
+│  Files (0x120-0x12F)        System (0x1F0-0x1FF)                    │
+│  ┌─────────────────┐        ┌─────────────────┐                     │
+│  │ fcreat - create │        │ sleep  - delay  │                     │
+│  │ fwrite - write  │        │ rnd    - random │                     │
+│  │ fread  - read   │        │ tick   - time   │                     │
+│  │ fdel   - delete │        │ halt   - stop   │                     │
+│  │ fcopy  - copy   │        └─────────────────┘                     │
+│  │ fmove  - rename │                                                │
+│  │ fexist - exists │        Memory (0x130-0x13F)                    │
+│  └─────────────────┘        ┌─────────────────┐                     │
+│                             │ strlen - length │                     │
+│                             │ memcpy - copy   │                     │
+│                             │ memset - fill   │                     │
+│                             │ abs    - abs    │                     │
+│                             └─────────────────┘                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -811,18 +811,19 @@ Graphics use a virtual framebuffer that renders when the program ends.
 │                    Graphics Coordinate System                       │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  (0,0)────────────────────────────────────▶ X (width, max 80)      │
+│  (0,0)────────────────────────────────────▶ X (width, max 80)       │
 │    │                                                                │
-│    │   ┌─────────────────────────────┐                             │
-│    │   │  Your canvas area           │                             │
-│    │   │                             │                             │
-│    │   │     * (5,2) = plot here     │                             │
-│    │   │                             │                             │
-│    │   └─────────────────────────────┘                             │
+│    │   ┌─────────────────────────────┐                              │
+│    │   │  Your canvas area           │                              │
+│    │   │                             │                              │
+│    │   │     * (5,2) = plot here     │                              │
+│    │   │                             │                              │
+│    │   └─────────────────────────────┘                              │
 │    ▼                                                                │
 │    Y (height, max 24)                                               │
 │                                                                     │
-│  Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white │
+│      Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta        |
+|      6=cyan 7=white                                                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -1012,29 +1013,29 @@ halt                 ; End program
 │                    C.ASM Memory Map (5KB Total)                     │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  0x0000 ┌───────────────────────────────────────────────────────┐  │
-│         │                                                       │  │
-│         │              PROGRAM CODE                             │  │
-│         │         (your compiled instructions)                  │  │
-│         │                                                       │  │
-│         │  Typical size: 100-500 bytes for small programs       │  │
-│         │                                                       │  │
-│  0x0400 ├───────────────────────────────────────────────────────┤  │
-│         │                                                       │  │
-│         │              DATA AREA                                │  │
-│         │                                                       │  │
-│  0x0500 │  ┌─────────────────────────────────────────────────┐  │  │
-│         │  │  Recommended data start (0x500)                 │  │  │
-│         │  │                                                 │  │  │
-│         │  │  • String buffers                               │  │  │
-│         │  │  • Input buffers                                │  │  │
-│         │  │  • File content                                 │  │  │
-│         │  │  • Variables                                    │  │  │
-│         │  │                                                 │  │  │
-│  0x1400 │  └─────────────────────────────────────────────────┘  │  │
-│         └───────────────────────────────────────────────────────┘  │
+│  0x0000 ┌───────────────────────────────────────────────────────┐   │
+│         │                                                       │   │
+│         │              PROGRAM CODE                             │   │
+│         │         (your compiled instructions)                  │   │
+│         │                                                       │   │
+│         │  Typical size: 100-500 bytes for small programs       │   │
+│         │                                                       │   │
+│  0x0400 ├───────────────────────────────────────────────────────┤   │
+│         │                                                       │   │
+│         │              DATA AREA                                │   │
+│         │                                                       │   │
+│  0x0500 │  ┌─────────────────────────────────────────────────┐  │   │
+│         │  │  Recommended data start (0x500)                 │  │   │ 
+│         │  │                                                 │  │   │
+│         │  │  • String buffers                               │  │   │
+│         │  │  • Input buffers                                │  │   │
+│         │  │  • File content                                 │  │   │
+│         │  │  • Variables                                    │  │   │
+│         │  │                                                 │  │   │
+│  0x1400 │  └─────────────────────────────────────────────────┘  │   │
+│         └───────────────────────────────────────────────────────┘   │
 │                                                                     │
-│  Note: Addresses 0x400-0x1FFF are automatically translated to      │
+│  Note: Addresses 0x400-0x1FFF are automatically translated to       │
 │  x28-relative addressing for native execution compatibility.        │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -1562,20 +1563,20 @@ If your program works in VM mode (`-v`) but crashes in native mode, check for re
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  Control:           Punctuation:         Digits:                    │
-│  ┌────────────┐     ┌────────────┐       ┌────────────┐            │
-│  │ newline=10 │     │ space=32   │       │ '0' = 48   │            │
-│  │ tab=9      │     │ !=33 "=34  │       │ '1' = 49   │            │
-│  │ return=13  │     │ #=35 $=36  │       │ ...        │            │
-│  └────────────┘     │ %=37 &=38  │       │ '9' = 57   │            │
-│                     │ '=39 (=40  │       └────────────┘            │
-│  Uppercase:         │ )=41 *=42  │                                 │
-│  ┌────────────┐     │ +=43 ,=44  │       Lowercase:                │
-│  │ 'A' = 65   │     │ -=45 .=46  │       ┌────────────┐            │
-│  │ 'B' = 66   │     │ /=47 :=58  │       │ 'a' = 97   │            │
-│  │ ...        │     │ ;=59 <=60  │       │ 'b' = 98   │            │
-│  │ 'Z' = 90   │     │ ==61 >=62  │       │ ...        │            │
-│  └────────────┘     │ ?=63 @=64  │       │ 'z' = 122  │            │
-│                     └────────────┘       └────────────┘            │
+│  ┌────────────┐     ┌────────────┐       ┌────────────┐             │
+│  │ newline=10 │     │ space=32   │       │ '0' = 48   │             │
+│  │ tab=9      │     │ !=33 "=34  │       │ '1' = 49   │             │
+│  │ return=13  │     │ #=35 $=36  │       │ ...        │             │
+│  └────────────┘     │ %=37 &=38  │       │ '9' = 57   │             │
+│                     │ '=39 (=40  │       └────────────┘             │
+│  Uppercase:         │ )=41 *=42  │                                  │
+│  ┌────────────┐     │ +=43 ,=44  │       Lowercase:                 │
+│  │ 'A' = 65   │     │ -=45 .=46  │       ┌────────────┐             │
+│  │ 'B' = 66   │     │ /=47 :=58  │       │ 'a' = 97   │             │
+│  │ ...        │     │ ;=59 <=60  │       │ 'b' = 98   │             │
+│  │ 'Z' = 90   │     │ ==61 >=62  │       │ ...        │             │
+│  └────────────┘     │ ?=63 @=64  │       │ 'z' = 122  │             │
+│                     └────────────┘       └────────────┘             │
 │                                                                     │
 │  Quick formula: lowercase = uppercase + 32                          │
 │                 digit_value = char - 48                             │
