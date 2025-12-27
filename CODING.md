@@ -1243,10 +1243,10 @@ This dramatically reduces MMIO overhead for programs that print many characters.
 │  memcpy/memset Optimization                                         │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  Unaligned (byte-by-byte):     Aligned (word-by-word):             │
-│  ┌───┬───┬───┬───┬───┬───┐    ┌───────────────────────┐            │
-│  │ B │ B │ B │ B │ B │ B │    │    8 bytes at once    │            │
-│  └───┴───┴───┴───┴───┴───┘    └───────────────────────┘            │
+│  Unaligned (byte-by-byte):     Aligned (word-by-word):              │
+│  ┌───┬───┬───┬───┬───┬───┐    ┌───────────────────────┐             │
+│  │ B │ B │ B │ B │ B │ B │    │    8 bytes at once    │             │
+│  └───┴───┴───┴───┴───┴───┘    └───────────────────────┘             │
 │  6 operations                  1 operation (8x faster!)             │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
