@@ -1,13 +1,38 @@
 # EmberOS
 
-A lightweight ARM64 operating system for QEMU virt platform.
+A lightweight ARM64 operating system for QEMU virt platform featuring interrupt-driven I/O, cooperative multitasking, and the CASM assembly language.
+
+## Features
+
+- ARM64 (AArch64) architecture
+- Interrupt-driven UART (no busy-wait polling)
+- Cooperative multitasking with background tasks
+- EL0/EL1 exception level separation
+- CASM assembly language with native execution
+- In-memory filesystem (RAMFS)
+- 50+ built-in shell commands
+- Automated test suite
 
 ## Quick Start
 
 ```bash
+# Build and run
 make clean && make
 make run
+
+# Run automated tests
+python3 tests/test_emberos.py
 ```
+
+## Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation on:
+- Exception levels (EL0/EL1)
+- Interrupt-driven UART
+- Cooperative multitasking
+- Process management
+- CASM execution model
+- Syscall interface
 
 ## Shell Commands
 
@@ -50,6 +75,41 @@ regs             - Display CPU registers
 clear            - Clear screen
 reboot           - Restart system
 shutdown         - Halt system
+```
+
+### Background Tasks
+```
+nohup <cmd>      - Run command in background
+ps               - List processes (shows [bg] for background)
+kill <pid>       - Kill a process
+```
+
+Background task example:
+```
+ember:/> nohup sleep 2000
+[2] appending output to nohup.out
+ember:/> ps
+PID  STATE    NAME
+1    running  [shell]
+2    running  [bg] sleep
+
+# After 2 seconds:
+[2] Done: sleep 2000
+```
+
+### UART Statistics
+```
+uartstat         - Show interrupt-driven UART statistics
+```
+
+Example output:
+```
+UART Statistics:
+----------------
+RX Interrupts: 42
+RX Characters: 156
+RX Overflows:  0
+RX Errors:     0
 ```
 
 ### Developer Tools
