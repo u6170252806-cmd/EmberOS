@@ -36,36 +36,36 @@ C.ASM (C-Assembly) is a simplified ARM64 assembly dialect designed for EmberOS. 
 ### How It Works
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                        C.ASM Execution Model                         │
-├──────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐          │
-│   │ Source File │ ──▶  │    CASM     │ ──▶  │   Binary    │          │
-│   │  (.asm)     │      │  Assembler  │      │   (.bin)    │          │
-│   └─────────────┘      └─────────────┘      └─────────────┘          │
-│                                                    │                 │
-│                              ┌─────────────────────┘                 │
-│                              ▼                                       │
-│   ┌──────────────────────────────────────────────────────────────┐   │
-│   │                    Native Execution                          │   │
-│   │  ┌────────────────────────────────────────────────────────┐  │   │
-│   │  │  ARM64 Instructions (mov, add, cmp, b, ldr, str...)    │  │   │
-│   │  │  Execute directly on CPU at full speed                 │  │   │
-│   │  └────────────────────────────────────────────────────────┘  │   │
-│   │                           │                                  │   │
-│   │                    SVC Trap (Extended Opcodes)               │   │
-│   │                           ▼                                  │   │
-│   │  ┌────────────────────────────────────────────────────────┐  │   │
-│   │  │  Kernel SVC Handler                                    │  │   │
-│   │  │  • I/O: prt, prtc, prtn, inp, inps                     │  │   │
-│   │  │  • Graphics: plot, line, box, canvas, setc             │  │   │
-│   │  │  • Files: fread, fwrite, fcreat, fdel                  │  │   │
-│   │  │  • System: sleep, rnd, tick, halt                      │  │   │
-│   │  └────────────────────────────────────────────────────────┘  │   │
-│   └──────────────────────────────────────────────────────────────┘   │
-│                                                                      │
-└──────────────────────────────────────────────────────────────────────┘
++----------------------------------------------------------------------+
+|                        C.ASM Execution Model                         |
++----------------------------------------------------------------------+
+|                                                                      |
+|   +-------------+      +-------------+      +-------------+          |
+|   | Source File | ---> |    CASM     | ---> |   Binary    |          |
+|   |  (.asm)     |      |  Assembler  |      |   (.bin)    |          |
+|   +-------------+      +-------------+      +-------------+          |
+|                                                    |                 |
+|                              +--------------------+                  |
+|                              v                                       |
+|   +------------------------------------------------------------------+
+|   |                    Native Execution                              |
+|   |  +------------------------------------------------------------+  |
+|   |  |  ARM64 Instructions (mov, add, cmp, b, ldr, str...)        |  |
+|   |  |  Execute directly on CPU at full speed                     |  |
+|   |  +------------------------------------------------------------+  |
+|   |                           |                                      |
+|   |                    SVC Trap (Extended Opcodes)                   |
+|   |                           v                                      |
+|   |  +------------------------------------------------------------+  |
+|   |  |  Kernel SVC Handler                                        |  |
+|   |  |  - I/O: prt, prtc, prtn, inp, inps                         |  |
+|   |  |  - Graphics: plot, line, box, canvas, setc                 |  |
+|   |  |  - Files: fread, fwrite, fcreat, fdel                      |  |
+|   |  |  - System: sleep, rnd, tick, halt                          |  |
+|   |  +------------------------------------------------------------+  |
+|   +------------------------------------------------------------------+
+|                                                                      |
++----------------------------------------------------------------------+
 ```
 
 ### What C.ASM is NOT
@@ -82,69 +82,69 @@ C.ASM (C-Assembly) is a simplified ARM64 assembly dialect designed for EmberOS. 
 ### Compilation Pipeline
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      Two-Pass Assembly                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  Source Code                                                        │
-│       │                                                             │
-│       ▼                                                             │
-│  ┌─────────┐    Tokens    ┌─────────┐     AST     ┌─────────────┐   │
-│  │  Lexer  │ ──────────▶  │ Parser  │ ──────────▶ │  Code Gen   │   │
-│  └─────────┘              └─────────┘             └─────────────┘   │
-│                                                          │          │
-│                                                          ▼          │
-│                                              ┌───────────────────┐  │
-│                                              │  Pass 1: Labels   │  │
-│                                              │  Collect symbols, │  │
-│                                              │  calculate addrs  │  │
-│                                              └─────────┬─────────┘  │
-│                                                        │            │
-│                                                        ▼            │
-│                                              ┌───────────────────┐  │
-│                                              │  Pass 2: Encode   │  │
-│                                              │  Generate ARM64   │  │
-│                                              │  machine code     │  │
-│                                              └─────────┬─────────┘  │
-│                                                        │            │
-│                                                        ▼            │
-│                                              ┌───────────────────┐  │
-│                                              │  Binary Output    │  │
-│                                              │  (.bin file)      │  │
-│                                              └───────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                      Two-Pass Assembly                              |
++---------------------------------------------------------------------+
+|                                                                     |
+|  Source Code                                                        |
+|       |                                                             |
+|       v                                                             |
+|  +---------+    Tokens    +---------+     AST     +-------------+   |
+|  |  Lexer  | -----------> | Parser  | ----------> |  Code Gen   |   |
+|  +---------+              +---------+             +-------------+   |
+|                                                          |          |
+|                                                          v          |
+|                                              +-------------------+  |
+|                                              |  Pass 1: Labels   |  |
+|                                              |  Collect symbols, |  |
+|                                              |  calculate addrs  |  |
+|                                              +---------+---------+  |
+|                                                        |            |
+|                                                        v            |
+|                                              +-------------------+  |
+|                                              |  Pass 2: Encode   |  |
+|                                              |  Generate ARM64   |  |
+|                                              |  machine code     |  |
+|                                              +---------+---------+  |
+|                                                        |            |
+|                                                        v            |
+|                                              +-------------------+  |
+|                                              |  Binary Output    |  |
+|                                              |  (.bin file)      |  |
+|                                              +-------------------+  |
++---------------------------------------------------------------------+
 ```
 
 ### Native Execution Model
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Runtime Memory Layout                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  code_buffer (5KB total)                                            │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │ 0x0000 ┌──────────────────────────────────────────────────┐ │    │
-│  │        │              Program Code                        │ │    │
-│  │        │         (ARM64 machine code)                     │ │    │
-│  │        │                                                  │ │    │
-│  │ 0x0400 ├──────────────────────────────────────────────────┤ │    │
-│  │        │              Data Area                           │ │    │
-│  │        │    (strings, buffers, variables)                 │ │    │
-│  │        │                                                  │ │    │
-│  │ 0x1400 └──────────────────────────────────────────────────┘ │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│                                                                     │
-│  Reserved Registers (set by kernel before execution):               │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │  x28 = code_buffer base (for data address translation)      │    │
-│  │  x27 = framebuffer base pointer                             │    │
-│  │  x26 = framebuffer row stride (81)                          │    │
-│  │  x25 = color buffer base pointer                            │    │
-│  │  x24 = current color value (set by setc/canvas/reset)       │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                    Runtime Memory Layout                            |
++---------------------------------------------------------------------+
+|                                                                     |
+|  code_buffer (5KB total)                                            |
+|  +-------------------------------------------------------------+    |
+|  | 0x0000 +--------------------------------------------------+ |    |
+|  |        |              Program Code                        | |    |
+|  |        |         (ARM64 machine code)                     | |    |
+|  |        |                                                  | |    |
+|  | 0x0400 +--------------------------------------------------+ |    |
+|  |        |              Data Area                           | |    |
+|  |        |    (strings, buffers, variables)                 | |    |
+|  |        |                                                  | |    |
+|  | 0x1400 +--------------------------------------------------+ |    |
+|  +-------------------------------------------------------------+    |
+|                                                                     |
+|  Reserved Registers (set by kernel before execution):               |
+|  +-------------------------------------------------------------+    |
+|  |  x28 = code_buffer base (for data address translation)      |    |
+|  |  x27 = framebuffer base pointer                             |    |
+|  |  x26 = framebuffer row stride (81)                          |    |
+|  |  x25 = color buffer base pointer                            |    |
+|  |  x24 = current color value (set by setc/canvas/reset)       |    |
+|  +-------------------------------------------------------------+    |
+|                                                                     |
++---------------------------------------------------------------------+
 ```
 
 ### Extended Opcode Handling
@@ -198,21 +198,21 @@ casm disasm program.bin
 ### Execution Modes Comparison
 
 ```
-┌────────────────┬─────────────────────────────────────────────────────┐
-│ Mode           │ Description                                         │
-├────────────────┼─────────────────────────────────────────────────────┤
-│ Native         │ Default. ARM64 code runs directly on CPU.           │
-│ (default)      │ Extended opcodes trap via SVC. Very fast!           │
-│                │ Use: casm run program.bin                           │
-├────────────────┼─────────────────────────────────────────────────────┤
-│ VM Mode        │ Interprets each instruction. Slower but useful      │
-│ (-v flag)      │ for debugging or if native has issues.              │
-│                │ Use: casm run -v program.bin                        │
-├────────────────┼─────────────────────────────────────────────────────┤
-│ Debug Mode     │ Step through instructions one at a time.            │
-│ (-d flag)      │ Shows registers and flags after each step.          │
-│                │ Use: casm run -d program.bin                        │
-└────────────────┴─────────────────────────────────────────────────────┘
++----------------+-----------------------------------------------------+
+| Mode           | Description                                         |
++----------------+-----------------------------------------------------+
+| Native         | Default. ARM64 code runs directly on CPU.           |
+| (default)      | Extended opcodes trap via SVC. Very fast!           |
+|                | Use: casm run program.bin                           |
++----------------+-----------------------------------------------------+
+| VM Mode        | Interprets each instruction. Slower but useful      |
+| (-v flag)      | for debugging or if native has issues.              |
+|                | Use: casm run -v program.bin                        |
++----------------+-----------------------------------------------------+
+| Debug Mode     | Step through instructions one at a time.            |
+| (-d flag)      | Shows registers and flags after each step.          |
+|                | Use: casm run -d program.bin                        |
++----------------+-----------------------------------------------------+
 ```
 
 ### Reserved Registers
@@ -556,34 +556,34 @@ mov x1, #0x500   ; Memory address - use x
 ### Register Conventions
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      Register Usage Guide                           │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  General Purpose (safe to use):                                     │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │  x0-x7   │ Arguments and return values for extended ops     │    │
-│  │  x8-x15  │ Temporary registers (use freely)                 │    │
-│  │  x16-x23 │ More temporaries (use freely)                    │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│                                                                     │
-│  RESERVED - DO NOT USE:                                             │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │  x24     │ Current color (set by setc/canvas/reset)         │    │
-│  │  x25     │ Color buffer base pointer                        │    │
-│  │  x26     │ Framebuffer row stride (81)                      │    │
-│  │  x27     │ Framebuffer base pointer                         │    │
-│  │  x28     │ Data base address (code_buffer)                  │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│                                                                     │
-│  Special:                                                           │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │  x30/lr  │ Link register (return address for bl/ret)        │    │
-│  │  x31/sp  │ Stack pointer / Zero register (context-dependent)│    │
-│  │  xzr/wzr │ Zero register (always reads as 0)                │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                      Register Usage Guide                           |
++---------------------------------------------------------------------+
+|                                                                     |
+|  General Purpose (safe to use):                                     |
+|  +-------------------------------------------------------------+    |
+|  |  x0-x7   : Arguments and return values for extended ops     |    |
+|  |  x8-x15  : Temporary registers (use freely)                 |    |
+|  |  x16-x23 : More temporaries (use freely)                    |    |
+|  +-------------------------------------------------------------+    |
+|                                                                     |
+|  RESERVED - DO NOT USE:                                             |
+|  +-------------------------------------------------------------+    |
+|  |  x24     : Current color (set by setc/canvas/reset)         |    |
+|  |  x25     : Color buffer base pointer                        |    |
+|  |  x26     : Framebuffer row stride (81)                      |    |
+|  |  x27     : Framebuffer base pointer                         |    |
+|  |  x28     : Data base address (code_buffer)                  |    |
+|  +-------------------------------------------------------------+    |
+|                                                                     |
+|  Special:                                                           |
+|  +-------------------------------------------------------------+    |
+|  |  x30/lr  : Link register (return address for bl/ret)        |    |
+|  |  x31/sp  : Stack pointer / Zero register (context-dependent)|    |
+|  |  xzr/wzr : Zero register (always reads as 0)                |    |
+|  +-------------------------------------------------------------+    |
+|                                                                     |
++---------------------------------------------------------------------+
 ```
 
 For C.ASM extended opcodes:
@@ -724,36 +724,45 @@ ldr x0, [x1]         ; Load 64-bit value
 Extended opcodes are C.ASM-specific instructions that provide high-level functionality. They're encoded as `SVC` instructions with special immediate values, handled by the kernel.
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Extended Opcode Categories                       │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  I/O (0x100-0x10F)          Graphics (0x110-0x11F)                  │
-│  ┌─────────────────┐        ┌─────────────────┐                     │
-│  │ prt   - string  │        │ canvas - size   │                     │
-│  │ prtc  - char    │        │ cls    - clear  │                     │
-│  │ prtn  - number  │        │ setc   - colors │                     │
-│  │ prtx  - hex     │        │ plot   - pixel  │                     │ 
-│  │ inp   - char in │        │ line   - line   │                     │
-│  │ inps  - string  │        │ box    - rect   │                     │
-│  └─────────────────┘        │ reset  - reset  │                     │
-│                             └─────────────────┘                     │
-│  Files (0x120-0x12F)        System (0x1F0-0x1FF)                    │
-│  ┌─────────────────┐        ┌─────────────────┐                     │
-│  │ fcreat - create │        │ sleep  - delay  │                     │
-│  │ fwrite - write  │        │ rnd    - random │                     │
-│  │ fread  - read   │        │ tick   - time   │                     │
-│  │ fdel   - delete │        │ halt   - stop   │                     │
-│  │ fcopy  - copy   │        └─────────────────┘                     │
-│  │ fmove  - rename │                                                │
-│  │ fexist - exists │        Memory (0x130-0x13F)                    │
-│  └─────────────────┘        ┌─────────────────┐                     │
-│                             │ strlen - length │                     │
-│                             │ memcpy - copy   │                     │
-│                             │ memset - fill   │                     │
-│                             │ abs    - abs    │                     │
-│                             └─────────────────┘                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                    Extended Opcode Categories                       |
++---------------------------------------------------------------------+
+|                                                                     |
+|  I/O (0x100-0x10F)          Graphics (0x110-0x11F)                  |
+|  +-----------------+        +-----------------+                     |
+|  | prt   - string  |        | canvas - size   |                     |
+|  | prtc  - char    |        | cls    - clear  |                     |
+|  | prtn  - number  |        | setc   - colors |                     |
+|  | prtx  - hex     |        | plot   - pixel  |                     |
+|  | inp   - char in |        | line   - line   |                     |
+|  | inps  - string  |        | box    - rect   |                     |
+|  | kbhit - key?    |        | reset  - reset  |                     |
+|  | getk  - get key |        +-----------------+                     |
+|  +-----------------+                                                |
+|                                                                     |
+|  Files (0x120-0x12F)        System (0x1F0-0x1FF)                    |
+|  +-----------------+        +-----------------+                     |
+|  | fcreat - create |        | sleep  - delay  |                     |
+|  | fwrite - write  |        | rnd    - random |                     |
+|  | fread  - read   |        | tick   - time   |                     |
+|  | fdel   - delete |        | halt   - stop   |                     |
+|  | fcopy  - copy   |        +-----------------+                     |
+|  | fmove  - rename |                                                |
+|  | fexist - exists |        Memory (0x130-0x13F)                    |
+|  +-----------------+        +-----------------+                     |
+|                             | strlen - length |                     |
+|  Math (0x140-0x14F)         | memcpy - copy   |                     |
+|  +-----------------+        | memset - fill   |                     |
+|  | min   - minimum |        | abs    - abs    |                     |
+|  | max   - maximum |        +-----------------+                     |
+|  | mod   - modulo  |                                                |
+|  | sqrt  - sq root |        Process (0x150-0x15F)                   |
+|  | pow   - power   |        +-----------------+                     |
+|  | sign  - sign    |        | getpid - pid    |                     |
+|  | clamp - clamp   |        | uptime - uptime |                     |
+|  +-----------------+        | memfree- memory |                     |
+|                             +-----------------+                     |
++---------------------------------------------------------------------+
 ```
 
 ### I/O Operations
@@ -807,25 +816,25 @@ inps                 ; Read input
 Graphics use a virtual framebuffer that renders when the program ends.
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Graphics Coordinate System                       │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  (0,0)────────────────────────────────────▶ X (width, max 80)       │
-│    │                                                                │
-│    │   ┌─────────────────────────────┐                              │
-│    │   │  Your canvas area           │                              │
-│    │   │                             │                              │
-│    │   │     * (5,2) = plot here     │                              │
-│    │   │                             │                              │
-│    │   └─────────────────────────────┘                              │
-│    ▼                                                                │
-│    Y (height, max 24)                                               │
-│                                                                     │
-│      Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta        |
-|      6=cyan 7=white                                                 │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                    Graphics Coordinate System                       |
++---------------------------------------------------------------------+
+|                                                                     |
+|  (0,0)----------------------------------------> X (width, max 80)   |
+|    |                                                                |
+|    |   +-----------------------------+                              |
+|    |   |  Your canvas area           |                              |
+|    |   |                             |                              |
+|    |   |     * (5,2) = plot here     |                              |
+|    |   |                             |                              |
+|    |   +-----------------------------+                              |
+|    v                                                                |
+|    Y (height, max 24)                                               |
+|                                                                     |
+|  Colors: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta            |
+|  6=cyan 7=white                                                     |
+|                                                                     |
++---------------------------------------------------------------------+
 ```
 
 #### canvas - Set Canvas Size
@@ -1001,6 +1010,134 @@ tick
 halt                 ; End program
 ```
 
+### Input Operations (Game-Friendly)
+
+Non-blocking input for games and interactive programs.
+
+#### kbhit - Check Key Available
+Returns 1 if a key is waiting, 0 otherwise. Does not consume the key.
+```asm
+kbhit
+; x0 = 1 if key available, 0 if not
+cbz x0, no_key       ; Branch if no key pressed
+```
+
+#### getk - Get Key (Non-Blocking)
+Returns key code if available, 0 if no key waiting. Consumes the key.
+```asm
+getk
+; x0 = key code, or 0 if no key
+cbz x0, no_input     ; Branch if no key
+```
+
+**Game Loop Pattern:**
+```asm
+game_loop:
+    kbhit                ; Check for input
+    cbz x0, update       ; No key? Skip input handling
+    getk                 ; Get the key
+    ; Handle key in x0...
+update:
+    ; Update game state...
+    mov x0, #16          ; ~60 FPS
+    sleep
+    b game_loop
+```
+
+### Math Operations
+
+Fast native math operations for calculations.
+
+#### min - Minimum
+```asm
+mov x0, #25
+mov x1, #10
+min
+; x0 = 10 (smaller value)
+```
+
+#### max - Maximum
+```asm
+mov x0, #25
+mov x1, #10
+max
+; x0 = 25 (larger value)
+```
+
+#### mod - Modulo (Remainder)
+```asm
+mov x0, #17
+mov x1, #5
+mod
+; x0 = 2 (17 % 5)
+```
+
+#### sqrt - Integer Square Root
+```asm
+mov x0, #144
+sqrt
+; x0 = 12
+```
+
+#### pow - Integer Power
+```asm
+mov x0, #2           ; Base
+mov x1, #10          ; Exponent
+pow
+; x0 = 1024 (2^10)
+```
+
+#### sign - Sign of Number
+Returns -1, 0, or 1 based on sign of x0.
+```asm
+mov x0, #-42
+sign
+; x0 = -1 (negative)
+
+mov x0, #0
+sign
+; x0 = 0 (zero)
+
+mov x0, #42
+sign
+; x0 = 1 (positive)
+```
+
+#### clamp - Clamp Value to Range
+Constrains x0 to be within [x1, x2].
+```asm
+mov x0, #150         ; Value
+mov x1, #0           ; Min
+mov x2, #100         ; Max
+clamp
+; x0 = 100 (clamped to max)
+```
+
+### Process Operations
+
+System information queries.
+
+#### getpid - Get Process ID
+Returns current process ID (always 1 in single-process EmberOS).
+```asm
+getpid
+; x0 = 1
+```
+
+#### uptime - Get System Uptime
+Returns seconds since system boot.
+```asm
+uptime
+; x0 = seconds since boot
+```
+
+#### memfree - Get Available Memory
+Returns total memory buffer size in bytes.
+```asm
+memfree
+; x0 = memory size (typically 5120 bytes)
+```
+
 
 ---
 
@@ -1009,36 +1146,36 @@ halt                 ; End program
 ### Layout
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    C.ASM Memory Map (5KB Total)                     │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  0x0000 ┌───────────────────────────────────────────────────────┐   │
-│         │                                                       │   │
-│         │              PROGRAM CODE                             │   │
-│         │         (your compiled instructions)                  │   │
-│         │                                                       │   │
-│         │  Typical size: 100-500 bytes for small programs       │   │
-│         │                                                       │   │
-│  0x0400 ├───────────────────────────────────────────────────────┤   │
-│         │                                                       │   │
-│         │              DATA AREA                                │   │
-│         │                                                       │   │
-│  0x0500 │  ┌─────────────────────────────────────────────────┐  │   │
-│         │  │  Recommended data start (0x500)                 │  │   │ 
-│         │  │                                                 │  │   │
-│         │  │  • String buffers                               │  │   │
-│         │  │  • Input buffers                                │  │   │
-│         │  │  • File content                                 │  │   │
-│         │  │  • Variables                                    │  │   │
-│         │  │                                                 │  │   │
-│  0x1400 │  └─────────────────────────────────────────────────┘  │   │
-│         └───────────────────────────────────────────────────────┘   │
-│                                                                     │
-│  Note: Addresses 0x400-0x1FFF are automatically translated to       │
-│  x28-relative addressing for native execution compatibility.        │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                    C.ASM Memory Map (5KB Total)                     |
++---------------------------------------------------------------------+
+|                                                                     |
+|  0x0000 +-------------------------------------------------------+   |
+|         |                                                       |   |
+|         |              PROGRAM CODE                             |   |
+|         |         (your compiled instructions)                  |   |
+|         |                                                       |   |
+|         |  Typical size: 100-500 bytes for small programs       |   |
+|         |                                                       |   |
+|  0x0400 +-------------------------------------------------------+   |
+|         |                                                       |   |
+|         |              DATA AREA                                |   |
+|         |                                                       |   |
+|  0x0500 |  +---------------------------------------------------+|   |
+|         |  |  Recommended data start (0x500)                   ||   |
+|         |  |                                                   ||   |
+|         |  |  - String buffers                                 ||   |
+|         |  |  - Input buffers                                  ||   |
+|         |  |  - File content                                   ||   |
+|         |  |  - Variables                                      ||   |
+|         |  |                                                   ||   |
+|  0x1400 |  +---------------------------------------------------+|   |
+|         +-------------------------------------------------------+   |
+|                                                                     |
+|  Note: Addresses 0x400-0x1FFF are automatically translated to       |
+|  x28-relative addressing for native execution compatibility.        |
+|                                                                     |
++---------------------------------------------------------------------+
 ```
 
 ### Memory Regions
@@ -1239,17 +1376,17 @@ This dramatically reduces MMIO overhead for programs that print many characters.
 `memcpy` and `memset` use 64-bit word operations when addresses are 8-byte aligned:
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  memcpy/memset Optimization                                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  Unaligned (byte-by-byte):     Aligned (word-by-word):              │
-│  ┌───┬───┬───┬───┬───┬───┐    ┌───────────────────────┐             │
-│  │ B │ B │ B │ B │ B │ B │    │    8 bytes at once    │             │
-│  └───┴───┴───┴───┴───┴───┘    └───────────────────────┘             │
-│  6 operations                  1 operation (8x faster!)             │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|  memcpy/memset Optimization                                         |
++---------------------------------------------------------------------+
+|                                                                     |
+|  Unaligned (byte-by-byte):     Aligned (word-by-word):              |
+|  +---+---+---+---+---+---+    +------------------------+            |
+|  | B | B | B | B | B | B |    |    8 bytes at once     |            |
+|  +---+---+---+---+---+---+    +------------------------+            |
+|  6 operations                  1 operation (8x faster!)             |
+|                                                                     |
++---------------------------------------------------------------------+
 ```
 
 ### Direct Framebuffer Access
@@ -1558,30 +1695,30 @@ If your program works in VM mode (`-v`) but crashes in native mode, check for re
 ## ASCII Quick Reference
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Common ASCII Values                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  Control:           Punctuation:         Digits:                    │
-│  ┌────────────┐     ┌────────────┐       ┌────────────┐             │
-│  │ newline=10 │     │ space=32   │       │ '0' = 48   │             │
-│  │ tab=9      │     │ !=33 "=34  │       │ '1' = 49   │             │
-│  │ return=13  │     │ #=35 $=36  │       │ ...        │             │
-│  └────────────┘     │ %=37 &=38  │       │ '9' = 57   │             │
-│                     │ '=39 (=40  │       └────────────┘             │
-│  Uppercase:         │ )=41 *=42  │                                  │
-│  ┌────────────┐     │ +=43 ,=44  │       Lowercase:                 │
-│  │ 'A' = 65   │     │ -=45 .=46  │       ┌────────────┐             │
-│  │ 'B' = 66   │     │ /=47 :=58  │       │ 'a' = 97   │             │
-│  │ ...        │     │ ;=59 <=60  │       │ 'b' = 98   │             │
-│  │ 'Z' = 90   │     │ ==61 >=62  │       │ ...        │             │
-│  └────────────┘     │ ?=63 @=64  │       │ 'z' = 122  │             │
-│                     └────────────┘       └────────────┘             │
-│                                                                     │
-│  Quick formula: lowercase = uppercase + 32                          │
-│                 digit_value = char - 48                             │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
++---------------------------------------------------------------------+
+|                    Common ASCII Values                              |
++---------------------------------------------------------------------+
+|                                                                     |
+|  Control:           Punctuation:         Digits:                    |
+|  +------------+     +------------+       +------------+             |
+|  | newline=10 |     | space=32   |       | '0' = 48   |             |
+|  | tab=9      |     | !=33 "=34  |       | '1' = 49   |             |
+|  | return=13  |     | #=35 $=36  |       | ...        |             |
+|  +------------+     | %=37 &=38  |       | '9' = 57   |             |
+|                     | '=39 (=40  |       +------------+             |
+|  Uppercase:         | )=41 *=42  |                                  |
+|  +------------+     | +=43 ,=44  |       Lowercase:                 |
+|  | 'A' = 65   |     | -=45 .=46  |       +------------+             |
+|  | 'B' = 66   |     | /=47 :=58  |       | 'a' = 97   |             |
+|  | ...        |     | ;=59 <=60  |       | 'b' = 98   |             |
+|  | 'Z' = 90   |     | ==61 >=62  |       | ...        |             |
+|  +------------+     | ?=63 @=64  |       | 'z' = 122  |             |
+|                     +------------+       +------------+             |
+|                                                                     |
+|  Quick formula: lowercase = uppercase + 32                          |
+|                 digit_value = char - 48                             |
+|                                                                     |
++---------------------------------------------------------------------+
 ```
 
 ---
@@ -1656,3 +1793,121 @@ countdown_loop:
 - Use `casm disasm` to study how code compiles
 - Experiment in debug mode with `casm run -d`
 - Start simple, add complexity gradually
+
+
+---
+
+## Testing Your Programs
+
+### Manual Testing
+
+Run your program directly:
+```bash
+ember:/> casm -r myprogram.asm
+```
+
+Or compile first, then run:
+```bash
+ember:/> casm myprogram.asm -o myprogram.bin
+ember:/> casm run myprogram.bin
+```
+
+### Debug Mode
+
+Step through your program instruction by instruction:
+```bash
+ember:/> casm run -d myprogram.bin
+Debug mode: Press ENTER to step, 'r' to run, 'q' to quit
+PC=0000: 52800900  mov w0, #72
+x0-x3: 00000000 00000000 00000000 00000000
+```
+
+Commands in debug mode:
+- `ENTER` - Execute one instruction
+- `r` - Run to completion
+- `q` - Quit
+
+### Disassembly
+
+View the generated machine code:
+```bash
+ember:/> casm disasm myprogram.bin
+Disassembly of 'myprogram.bin' (24 bytes):
+0000:  52800900  mov w0, #72
+0004:  d4002021  prtc
+0008:  52800d20  mov w0, #105
+000c:  d4002021  prtc
+...
+```
+
+### Automated Testing
+
+EmberOS includes an automated test suite that verifies all functionality:
+
+```bash
+# From the host system (not inside EmberOS)
+python3 tests/test_emberos.py
+```
+
+The test suite:
+1. Builds the kernel
+2. Starts QEMU
+3. Runs 70+ tests covering:
+   - Shell commands
+   - Filesystem operations
+   - Background tasks
+   - CASM programs
+   - CASM toolchain
+4. Reports pass/fail status
+
+Example output:
+```
+════════════════════════════════════════════════════════════
+  EmberOS Integration Test Suite
+════════════════════════════════════════════════════════════
+🔨 Building kernel...
+✓ Build successful!
+🚀 Starting QEMU...
+✓ EmberOS booted successfully!
+
+▶ CASM: Hello World
+  ✓ prints Hi!
+
+▶ CASM: Counter
+  ✓ counts 1-3
+  ✓ prints Done!
+...
+────────────────────────────────────────────────────────────
+  🎉 All 73 tests passed!
+```
+
+### Adding Your Own Tests
+
+To add a test for your CASM program, edit `tests/test_emberos.py`:
+
+```python
+def test_my_program(self):
+    self.section("My Program")
+    
+    # Write the program
+    asm = """; My test program
+.text
+_start:
+    mov w0, #72
+    prtc
+    halt
+"""
+    self._write_file("test.asm", asm)
+    
+    # Run and check output
+    output = self.send_command("casm -r test.asm", timeout=10)
+    self.record_result("prints H", "H" in output)
+    
+    # Cleanup
+    self.send_command("rm test.asm")
+```
+
+Then add your test to `run_all_tests()`:
+```python
+self.test_my_program()
+```
